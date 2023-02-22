@@ -25,9 +25,9 @@ class FlowCounterSimpleFilterTest < Test::Unit::TestCase
       msgs << {'message'=> 'b' * 100}
     end
     d = create_driver
-    filtered, out = filter(d, msgs)
+    filtered, logs = filter(d, msgs)
     assert_equal msgs, filtered
-    assert { out.include?("count:20") }
+    assert { logs.any? { |log| log.include?("count:20") } }
   end
 
   private
@@ -37,10 +37,8 @@ class FlowCounterSimpleFilterTest < Test::Unit::TestCase
       msgs.each {|msg|
         d.feed(msg)
       }
-    }
-    out = capture_log(d.instance.log) do
       d.instance.flush_emit(0)
-    end
-    [d.filtered_records, out]
+    }
+    [d.filtered_records, d.logs]
   end
 end
